@@ -21,7 +21,7 @@ class PointsController {
             image     : req.file.filename,
             name      : name.trim(),  
             email     : email.trim(), 
-            whatsapp  : whatsapp.trim(), 
+            whatsapp  : whatsapp, 
             latitude  : Number(latitude), 
             longitude : Number(longitude), 
             city      : city.trim(),    
