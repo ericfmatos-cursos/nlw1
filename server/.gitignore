@@ -122,3 +122,5 @@ uploads/*
 !uploads/oleo.svg
 !uploads/organicos.svg
 !uploads/papeis-papelao.svg
+
+*.sqlite
