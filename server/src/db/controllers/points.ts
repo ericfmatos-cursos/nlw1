@@ -1,6 +1,7 @@
-import knex           from '../../db/connection';
+import Knex from 'knex';
+import knex from '../../db/connection';
+
 import { runTransaction } from '../../db/utils';
-import Knex           from 'knex';
 
 const TABLE_NAME  = 'points';
 const PIVOT_TABLE = 'point_items';
@@ -33,7 +34,6 @@ class DbPoints {
         const { image, ...result } = data;
         return  result;
     }
-    
 
     async create (point: PointData, items: number[]): Promise<number>  {
         const point_id = await runTransaction(async (trx: Knex.Transaction) => {

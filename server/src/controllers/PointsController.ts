@@ -2,17 +2,6 @@ import { Request, Response } from 'express';
 import DbPoints from '../db/controllers/points';
 
 const dbPoints = new DbPoints();
-
-const serializePoint = (point: any) => {
-    const data = {
-        ...point,
-        image_url : `/uploads/${point.image}`
-    }
-
-    const { image, ...result } = data;
-    return  result;
-}
-
 class PointsController {
     
     async create(req: Request, res: Response) {
@@ -31,7 +20,6 @@ class PointsController {
         const point_id = await dbPoints.create(point, itemsArray);
         
         return res.json({ success: {id: point_id, ...point} });
-        
     }
 
     async show(req: Request, res: Response) {
