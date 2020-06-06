@@ -114,3 +114,11 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+uploads/*
+!uploads/baterias.svg
+!uploads/eletronicos.svg
+!uploads/lampadas.svg
+!uploads/oleo.svg
+!uploads/organicos.svg
+!uploads/papeis-papelao.svg
