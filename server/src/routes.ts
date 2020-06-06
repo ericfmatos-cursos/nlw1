@@ -1,42 +1,15 @@
-import express            from 'express';
-import multer             from 'multer';
-import { celebrate, Joi } from 'celebrate';
+import express      from 'express';
 
-import PointsController   from './controllers/PointsController';
-import ItemsController    from './controllers/ItemsController';
-import multerConfig       from './config/multer';
+import route_items  from './routes/items';
+import route_points from './routes/points';
 
 const routes = express.Router();
-const upload = multer(multerConfig);
-
-const pointsController = new PointsController();
-const itemsController  = new ItemsController();
 
 routes.get('/', (req, res) => {
     return res.json({ msg : "Whats up!" });
 });
 
-routes.get ('/items',      itemsController.index);
-
-routes.post('/points',
-            upload.single("image"),
-            celebrate({
-                body : Joi.object().keys({
-                    name      : Joi.string().required(),
-                    email     : Joi.string().required().email(),
-                    whatsapp  : Joi.number().required(),
-                    latitude  : Joi.number().required(),
-                    longitude : Joi.number().required(),
-                    city      : Joi.string().required(),
-                    uf        : Joi.string().required().max(2),
-                    items     : Joi.string().regex(/^\d+(,\d+)*$/i).required()
-                })
-            }, {
-                abortEarly : false
-            }), 
-            pointsController.create);
-
-            routes.get ('/points/:id', pointsController.show);
-routes.get ('/points',     pointsController.index);
+routes.use('/items',  route_items);
+routes.use('/points', route_points);
 
 export default routes;

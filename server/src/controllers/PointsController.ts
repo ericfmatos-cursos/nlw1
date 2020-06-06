@@ -1,5 +1,7 @@
-import knex from '../db/connection';
 import { Request, Response } from 'express';
+import DbPoints from '../db/controllers/points';
+
+const dbPoints = new DbPoints();
 
 const serializePoint = (point: any) => {
     const data = {
@@ -15,8 +17,6 @@ class PointsController {
     
     async create(req: Request, res: Response) {
         const { name, email, whatsapp, latitude, longitude, city, uf, items } = req.body;
-        
-        const trx = await knex.transaction();
         const point = { 
             image     : req.file.filename,
             name      : name.trim(),  
@@ -27,67 +27,33 @@ class PointsController {
             city      : city.trim(),    
             uf        : uf.trim()
         };
-        try {
-            const ids = await trx('points').insert(point);
-            const point_id = ids[0];
-            const point_items = items
-                .split(',')
-                .map((item_id: string) => {
-                    return {
-                        item_id : parseInt(item_id.trim()),
-                        point_id
-                    }
-                });
-            await trx('point_items').insert(point_items);
-            await trx.commit();
-            return res.json({ success: {id: point_id, ...point} });
-        } catch (e) {
-            await trx.rollback();
-            return res.status(500).json({ error: {...e} });
-        }
+        const itemsArray = items.split(',').map((_item: string) => Number(_item.trim()));
+        const point_id = await dbPoints.create(point, itemsArray);
+        
+        return res.json({ success: {id: point_id, ...point} });
+        
     }
 
     async show(req: Request, res: Response) {
         const { id } = req.params;
+        const result =  await dbPoints.get(Number(id));
 
-        const point = await knex("points").where("id", id).first();
-        if (!point) {
+        if (!result) {
             return res.status(404).json({msg: "point not found"});
         }
 
-        const items = await knex("items")
-            .join("point_items", "items.id", "=", "point_items.item_id")
-            .where("point_items.point_id", id)
-            .select("items.id","items.title");
-
-        return res.json({ 
-            point : serializePoint(point), 
-            items 
-        });
+        return res.json(result);
     }
 
     async index(req: Request, res: Response) {
         const { city, uf, items } = req.query;
-        const parsedItems = (items && String(items).split(',').map(item => Number(item.trim()))) || null;
-        
-        const points = await knex('points')
-            .join("point_items", "points.id", "=", "point_items.point_id")
-            .modify((queryBuilder) => {
-                if (parsedItems && parsedItems.length) {
-                    queryBuilder.whereIn("point_items.item_id", parsedItems);
-                }
-                if (city) {
-                    queryBuilder.where  ("city", String(city));
-                }
-                if (uf) {
-                    queryBuilder.where  ("uf",   String(uf));
-                }
-            })
-            .distinct()
-            .select("points.*");
-            
-        
-        return res.json(points.map(_point => serializePoint(_point)));
+        const params = {
+            city  : String(city  || ""), 
+            uf    : String(uf    || ""), 
+            items : String(items || "")
+        }
+        const result = await dbPoints.list(params);
+        return res.json(result);
     }
 }
 

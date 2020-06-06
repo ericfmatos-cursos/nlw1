@@ -115,12 +115,9 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
+# User upload folder
 uploads/*
-!uploads/baterias.svg
-!uploads/eletronicos.svg
-!uploads/lampadas.svg
-!uploads/oleo.svg
-!uploads/organicos.svg
-!uploads/papeis-papelao.svg
+!uploads/.gitkeep
 
+# Database files
 *.sqlite
